@@ -1,0 +1,37 @@
+#+TITLE:HW I (CBE 60547)
+#+AUTHOR: William F. Schneider
+#+DATE:2015-01-22 Thu
+#+LATEX_CLASS: article
+#+OPTIONS: ^:{} # make super/subscripts only when wrapped in {}
+#+OPTIONS: toc:nil # suppress toc, so we can put it where we want
+#+OPTIONS: tex:t
+#+EXPORT_EXCLUDE_TAGS: noexport
+
+#+LATEX_HEADER: \usepackage[left=1in, right=1in, top=1in, bottom=1in, nohead]{geometry} 
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \usepackage{setspace}
+#+LATEX_HEADER: \usepackage[labelfont=bf]{caption}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{enumerate}
+#+LATEX_HEADER: \usepackage[parfill]{parskip}
+
+
+
+* Lecture 0: The Context of Computational Chemistry
+Find an article in the current literature that uses quantum chemical calculations in some way to address some chemical or materials problem.
+Good potential sources include J. Am. Chem. Soc., J. Phys. Chem., Science, Angew. Chemie, Phys. Chem. Chem. Phys., Inorg. Chem., Phys. Rev., Nature, J. Catal., ....
+
+** Give the full citation of your article, including authors, title, journal, year, volume, pages, and doi (digital object identifier).
+Title: Trends in the Catalytic CO Oxidation Activity of Nanoparticles \\
+Authors: Hanne Falsig, Britt Hvolbæk, Iben S. Kristensen, Tao Jiang, Thomas Bligaard, Claus H. Christensen, and Jens K. Nørskov \\
+DOI: 10.1002/anie.200801479 \\
+Journal: Angew. Chem. Int. Ed. \\
+Year: 2008 \\
+Volume: 47 \\
+Pages: 4835-4839 \\
+
+** In just two to three sentences, what question do the authors try to answer using their calculations?
+They compared catalytic activities of differential transition metal catalysts for CO oxidation. Also, they elucidated the reason why the Au nanoparticle has the high activity for CO oxidation. \\
+
+** In just two to three sentences, what answer do they arrive at?
+Activation energies of elementary steps for CO oxidation can be scaled with adsorption energies of reaction intermediates, which allows them to build a microkinetic model for CO oxidation. On close-packed plane, the Au catalyst has the lowest activity. However, the Au cluster model showed substantial CO oxidation activity. These imply that a decreasing coordination number of active metal sites of the Au catalyst leads to significant improvements for CO oxidation activity.

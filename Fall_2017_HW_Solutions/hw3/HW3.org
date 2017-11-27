@@ -1,0 +1,231 @@
+#+TITLE: 
+#+AUTHOR: 
+#+DATE: Due: 10/24/2017
+#+LATEX_CLASS: article
+#+OPTIONS: ^:{} # make super/subscripts only when wrapped in {}
+#+OPTIONS: toc:nil # suppress toc, so we can put it where we want
+#+OPTIONS: tex:t
+#+EXPORT_EXCLUDE_TAGS: noexport
+
+#+LATEX_HEADER: \usepackage[left=1in, right=1in, top=1in, bottom=1in, nohead]{geometry} 
+#+LATEX_HEADER: \usepackage{fancyhdr}
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \usepackage{setspace}
+#+LATEX_HEADER: \usepackage[labelfont=bf]{caption}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{enumerate}
+#+LATEX_HEADER: \usepackage[parfill]{parskip}
+
+\title{Computational Chemistry Homework 3}
+\author{Jeonghyun Ko, Gray Laughlin, Yujia Wang}
+\maketitle
+
+
+Here is an example input deck for a HFS/6-31G calculation on NH_{3}. This is a good starting template for the calculations below. You can also construct an input deck in Avogadro. Refer to the GAMESS manual for more information.
+
+#+BEGIN_EXAMPLE
+!   File created by the GAMESS Input Deck Generator Plugin for Avogadro
+ $BASIS GBASIS=N31 NGAUSS=6 $END
+ $CONTRL RUNTYP=ENERGY DFTTYP=SLATER $END
+
+ $DATA 
+Title
+C1
+N     7.0    -1.03363     0.80618     0.00000
+H     1.0    -0.01363     0.80618     0.00000
+H     1.0    -1.37362     1.64340    -0.47314
+H     1.0    -1.37363     0.79732     0.96162
+ $END
+#+END_EXAMPLE
+
+
+* =GAMESS= vs. =FDA=
+
+Using =GAMESS=, perform a DFT/Hartree-Fock-Slater (~DFTTYP=SLATER~) calculation on an Ar atom using the 6-31G basis set.
+
+** a) How many primitive Gaussians are included in this calculation? How many total basis functions? How do they divide between s, p, and d?
+
+Input file of GAMESS for Ar 
+#+BEGIN_EXAMPLE
+ $BASIS GBASIS=N31 NGAUSS=6 $END
+ $CONTRL RUNTYP=ENERGY DFTTYP=SLATER $END
+
+ $DATA 
+Title
+C1
+Ar    18.0    -3.86612     1.03789     0.00000
+ $END
+#+END_EXAMPLE
+
+Let's look at the log file. We used 13 primitive Gaussians.
+#+BEGIN_SRC sh
+grep "GAUSSIAN BASIS FUNCTIONS" Ar/Ar.log
+#+END_SRC
+
+#+RESULTS:
+: NUMBER OF CARTESIAN GAUSSIAN BASIS FUNCTIONS =   13
+
+Because we used 6-31G Basis set, 6 gaussian functions are used for core shells and 3 and 1 gaussian functions are used for inner and outer regions of valance shells. See table below.
+
+| Orbital | Basis Sets | Primitive gauss functions | Total gauss functions |
+|---------+------------+---------------------------+-----------------------|
+| 1s      |          1 |                         6 |                     6 |
+| 2s      |          1 |                         6 |                     6 |
+| 2p      |          3 |                         6 |                    18 |
+| 3s      |          1 |                         3 |                     3 |
+| 3p      |          3 |                         3 |                     9 |
+| 3s+     |          1 |                         1 |                     1 |
+| 3p+     |          3 |                         1 |                     3 |
+|---------+------------+---------------------------+-----------------------|
+| Total   |         13 |                           |                    46 |
+
+** b) How many SCF iterations does the calculation take to converge?
+
+Let's look at the log file again. 12 iterations are required to reach convergence.
+
+#+BEGIN_SRC sh
+grep "ITER" Ar/Ar.dat
+#+END_SRC
+
+#+RESULTS:
+
+
+** c) What is the final calculated HFS/6-31G energy of the atom?
+
+The final HFS/6-31G energy: -524.452 Hartree.
+
+** d) What are the identities (1s, 2p, etc.) and energies of the occupied atomic orbitals?
+
+E_FDA values are from HW2.
+
+| Orbital | E_{GAMESS} (Hartree) | E_{FDA} (Hartree) |
+|---------+----------------------+-------------------|
+| 1s      |            -113.6768 |         -116.9366 |
+| 2s      |             -10.7172 |          -11.6037 |
+| 2p      |              -8.3677 |           -9.2721 |
+| 3s      |              -0.8218 |           -1.1022 |
+| 3p      |              -0.3222 |           -0.5735 |
+| 3s+     |               0.4316 |                   |
+| 3p+     |               0.5206 |                   |
+
+** e) Compare your computed total energy and atomic orbital energies with those you got from Homework 2 using the fda code for Ar.
+
+The total energy from FDA is -526.8275 Hartree. Compared to HFSs/6-31G energy (-254.425 Hartree), FDA shows slightly lower total energy.
+
+* The Generalized Gradient Approximation
+
+The generalized gradient approximation (GGA) is an improvement on Hartree-Fock-Slater that gives a nice balance between accuracy and computational expense. Using =GAMESS=, perform a single point calculation (~RUNTYP=ENERGY~) on the bent triatomic SO_{2} using the GGA (~DFTTYP=PBE~) and PC1 basis set (~GBASIS=PC1~, ~ISPHER=1~; no ~NGAUSS~ flag needed). Guess appropriate bond lengths and angle. Be sure to report your input file for your calculation.
+
+** a) What is the spin multiplicity of SO_{2}? (Recall, the spin multiplicity is 2S +1, where S = 1/2 for one unpaired electron, S = 1 for two unpaired electrons, and so on).
+
+The spin multiplicity for SO_{2} is 2 * 0 + 1 = 1. 
+
+** b) How many basis functions are in this calculation?
+
+Let's look at the log file. We used 49 primitive Gaussians.
+#+BEGIN_SRC sh
+grep "GAUSSIAN BASIS FUNCTIONS" SO2/SO2.log
+#+END_SRC
+
+#+RESULTS:
+: NUMBER OF CARTESIAN GAUSSIAN BASIS FUNCTIONS =   49
+
+** c) How many SCF cycles does it take to converge?
+
+It takes 22 SCF cycles to converge.
+
+#+BEGIN_SRC sh
+grep "ITER" SO2/SO2.dat
+#+END_SRC
+
+#+RESULTS:
+
+** d) What SCF algorithm does the code use?
+
+The code uses the DIIS algorithm.
+
+See log file. we can see "DIIS = T"
+
+** e) What is the final total energy of the molecule?
+
+The final total energy is -548.234 Hartree
+    
+#+BEGIN_SRC sh
+grep "TOTAL ENERGY = " SO2/SO2.log
+#+END_SRC
+
+#+RESULTS:
+
+** f) How many occupied orbitals does the molecule have? What are the energies of the HOMO and LUMO?
+
+There are 16 occupied orbitals.
+
+#+BEGIN_SRC sh
+grep "NUMBER OF OCCUPIED" SO2/SO2.log
+#+END_SRC
+
+#+RESULTS:
+| NUMBER | OF | OCCUPIED | ORBITALS | (ALPHA) | = | 16 |    |
+| NUMBER | OF | OCCUPIED | ORBITALS | (BETA   | ) |  = | 16 |
+
+
+HOMO: -0.2826 Hartree (16th)
+
+LUMO: -0.1472 Hartree (17th)
+
+** g) What is the final dipole moment?
+
+The final dipole moment is 1.453 debyes
+
+** h) What are the Mulliken gross charges on the S and O atoms?
+
+The Mulliken charges are tabulated below.
+
+| ATOM |    CHARGE |
+|------+-----------|
+| S    |  0.570174 |
+| O    | -0.296290 |
+| O    | -0.273884 |
+
+** i) Plot out the electrostatic potential of SO_{2}. Which end of the molecule is electrophilic and which is nucleophilic?
+
+The electrostatic potential can be plotted by using Avogadro.
+
+#+attr_latex: :width 4in :placement [H]
+#+attr_org: :width 400
+[[./SO2/SO2.png]]
+
+* Geometry Optimization of SO_{2}
+
+** a) Do a series of calculations in which you vary the S–O distances and O–S–O angle over a regular grid of values. Approximate the combination of values that give the lowest energy.
+
+Molecular energies were calculated using Gaussian B3LYP functional and 6-31G(d) basis set:
+
+#+ATTR_LATEX:
+| Energy (Ha) | 1.35(\AA) | 1.45(\AA) | 1.50(\AA) | 1.55(\AA) | 1.65(\AA) |
+|-------------|-----------|-----------|-----------|-----------|-----------|
+| 105\deg     | -548.531  | -548.574  | -548.574  | -548.565  | -548.529  |
+| 115\deg     | -548.548  | -548.586  | -548.584  | -548.573  | -548.535  |
+| 120\deg     | -548.550  | \textbf{-548.587} | -548.585  | -548.573  | -548.534  |
+| 125\deg     | -548.549  | -548.585  | -548.583  | -548.571  | -548.532  |
+| 135\deg     | -548.538  | -548.574  | -548.572  | -548.561  | -548.523  |
+
+As shown in the table, the combination of values that give the lowest energy is S–O distance = 1.45 \AA and O–S–O angle = 120\deg.
+
+** b) A geometry optimization is a faster way to find the optimal geometry of a molecule. Perform a geometry optimization on SO_{2} using the same computational model as above. What are the optimal S–O distances and O–S–O angle?
+
+Geometry optimization was done using Gaussian B3LYP functional and 6-31G(d) basis set ([[./SO2.txt]]): the optimal S–O distances are 1.46 \AA and O–S–O angle is 119\deg. We got pretty close results using the rough scan.
+
+* Other Molecules
+
+Oxygen makes bonds with lots of things. Fill out the table below by doing an appropriate set of calculations:
+
+Geometry optimization was done using Gaussian B3LYP functional and 6-31G(d) basis set:
+
+#+ATTR_LATEX:
+| AO_{2}           | A-O (\AA) | O-A-O (\deg) | Spin Multiplicity | Dipole Moment (e\AA) | Mulliken Charge    |
+|---------+-----------+--------------+-------------------+----------------------+--------------------|
+| CO_{2} [[./CO2.txt]] |     1.169 |          180 |                 1 |                    0 | C: 0.72, O: -0.36  |
+| NO_{2} [[./NO2.txt]] |     1.203 |       133.84 |                 2 |                 0.32 | N: 0.48, O: -0.24  |
+|SiO_{2}[[./SiO2.txt]]   |     1.520 |          180 |                 1 |                    0 | Si: 0.95, O: -0.48 |
+| SO_{2} [[./SO2.txt]] |     1.463     |        119.08 |                1        |                 1.78 | S: 0.82, O: -0.41  |

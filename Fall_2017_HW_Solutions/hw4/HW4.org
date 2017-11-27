@@ -1,0 +1,350 @@
+#+TITLE:
+#+AUTHOR:
+#+DATE: Due: 16 Nov 2017
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [11pt]
+#+OPTIONS: ^:{} # make super/subscripts only when wrapped in {}
+#+OPTIONS: toc:nil # suppress toc, so we can put it where we want
+#+OPTIONS: tex:t
+#+EXPORT_EXCLUDE_TAGS: noexport
+
+#+LATEX_HEADER: \usepackage[left=1in, right=1in, top=1in, bottom=1in, nohead]{geometry}
+#+LATEX_HEADER: \usepackage{fancyhdr}
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \usepackage{setspace}
+#+LATEX_HEADER: \usepackage[labelfont=bf]{caption}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{enumerate}
+#+LATEX_HEADER: \usepackage[parfill]{parskip}
+#+LATEX_HEADER: \usepackage[version=3]{mhchem}
+
+\title\title{Computational Chemistry Homework 4}
+\author{Jeonghyun Ko, Gray Laughlin, Yujia Wang}
+\maketitle
+
+In this assignment you will determine some of the properties of *acetaldehyde* (\ce{CH3CHO}), its isomer *vinyl alcohol* (\ce{H2C=CH(OH)}), and the *transtion state* (TS) that interconverts the two:
+
+#+BEGIN_CENTER
+[[file:fig1.png]]
+#+END_CENTER
+
+
+
+* Characterizing the reactant and product
+  :PROPERTIES:
+  :ORDERED:  t
+  :END:
+
+#+ATTR_LATEX: :options [(a)]
+a. First, optimize the structures of the reactant acetaldehyde and product vinyl alcohol at the Hartree-Fock level with the 6-31G(d) basis set. Make a table of the key internal coordinates in the two (note you will figure out the TS below):
+
+|---------------+--------------+------------------+---------------|
+|               | Acetaldehyde | Transition State | Vinyl alcohol |
+|---------------+--------------+------------------+---------------|
+| H_{1}–C (\AA) |              |                  |               |
+| C–C (\AA)     |              |                  |               |
+| C–O (\AA)     |              |                  |               |
+| O-H_{1} (\AA) |              |                  |               |
+|---------------+--------------+------------------+---------------|
+
+#+ATTR_LATEX: :options [(b)]
+b. Which geometry optimization method did you use in (a)? What type of coordinate system? What were the convergence criteria?
+
+#+ATTR_LATEX: :options [(c)]
+c. Calculate the vibrational spectra of the reactant and product. Confirm that both are true minima (if not, adjust and recalculate). Identify the most prominent (intense) infrared vibrational modes in the two. Could you distinguish these two by their vibrational spectra?
+
+#+ATTR_LATEX: :options [(d)]
+d. Perform single-point energy calculations on the reactant and product at the MP2/6-31G(d) level.  Use the results to complete the table below:
+
+|--------------+--------------------------------+--------------------------|
+|              | Product $-$ reactant  (kJ/mol) | TS $-$ reactant (kJ/mol) |
+|--------------+--------------------------------+--------------------------|
+| HF/6-31G(d)  |                                |                          |
+| MP2/6-31G(d) |                                |                          |
+| ZPE          |                                |                          |
+| MP2 + ZPE    |                                |                          |
+|--------------+--------------------------------+--------------------------|
+
+#+ATTR_LATEX: :options [(e)]
+e. From the frequency calculations on the reactant and product, extract \( H^{\circ}(298)-H(0) \) for each.  Combine with the MP2 + ZPE results to estimate the 298 K reaction enthalpy.
+
+* Transition state by scanning
+#+ATTR_LATEX: :options [(a)]
+a. Do a rigid scan about the H_{1}-C-C-O dihedral in acetaldehyde. It is easiest to do this using a z-matrix representation of acetaldehyde. Construct a z-matrix based on your optimized acetaldehyde structure and do a series of energy evaluations as you vary the dihedral angle. Approximately how large is the barrier to rotation about the C–C bond, in kJ/mol?
+
+
+Recall the z-matrix looks like:
+
+#+BEGIN_EXAMPLE
+C1
+C2 1 dCC
+O  1 dCO  2 aOCC
+H1 2 dCH1 1 aHCC1 3 dHCCO
+
+...
+#+END_EXAMPLE
+
+
+* Transition state optimization
+#+ATTR_LATEX: :options [(a)]
+a. Guess a structure near the transition state that connects acetaldehyde to vinyl alcohol (note I gave you some hints in the figure) and compute the Hessian at the HF/6-31G(d) level to make sure you are near a saddle point.  Once you have a satisfactory guess, search from this starting point for the transition state. Make sure your calculation converges, and calculate the vibrational spectrum again to make sure you landed at the saddle point. Add the key internal coordinates to the Table in 1(a).
+
+b. What is the magnitude of the imaginary vibrational mode at the transition state?
+
+c. Perform a single-point MP2/6-31G(d) calculations on this transition state. Add the results to the Table in 1(c).
+
+d. Use transition state theory to estimate the rate constant for this reaction at 298 K.  From the frequency calculations on the reactant and transition state, extract \(G^{\circ}(298 K)- G( K) \) for each.  Combine these results with the MP2 + ZPE energies to estimate \( \Delta G^{\ddagger}(298) \).  Evaluate the rate constant using the TST expression:
+#+BEGIN_LaTeX
+\begin{equation}
+ k(T) =\frac{k_{B} T}{h} e^{-\Delta G^{\ddagger}(T)/k_{B}T}
+#+END_LaTeX
+
+
+** Solution
+
+*** a)
+
+Input file of GAMESS for TS structure guess
+#+BEGIN_SRC sh
+ $CONTRL SCFTYP=RHF RUNTYP=HESSIAN 
+       ICHARG=0 MULT=1 COORD=ZMTMPC $END
+ $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 $END
+ $DATA
+C2H4O
+C1 1
+C 0.0000000 0 0.0000000 0 0.0000000 0 0 0 0
+C 1.5400000 1 0.0000000 0 0.0000000 0 1 0 0
+O 1.2750000 1 120.00000 1 0.0000000 0 2 1 0
+H 1.0900000 1 117.38979 1 -161.69239 1 2 1 3
+H 1.0900000 1 109.47122 1 -110.00000 1 1 2 3
+H 1.5049141 1 69.873799 1 -11.355914 1 1 2 3
+H 1.0900000 1 109.47122 1 130.00000 1 1 2 3
+ $END
+#+END_SRC
+
+$\vspace{3pt}$
+
+The vibrational modes for the guessed TS structure
+
+| Mode | Frequency (cm$^{-1}$)  |
+|------+------------------------|
+|    1 |           1170.63841 I |
+|    2 |              220.80887 |
+|    3 |                0.01753 |
+|    4 |                0.00648 |
+|    5 |                0.00508 |
+|    6 |              232.68365 |
+|    7 |              382.62252 |
+|    8 |              531.21061 |
+|    9 |              708.46004 |
+|   10 |               822.0281 |
+|   11 |              952.78115 |
+|   12 |             1193.26027 |
+|   13 |             1274.08053 |
+|   14 |             1335.08057 |
+|   15 |             1398.97709 |
+|   16 |             1504.56455 |
+|   17 |             1570.71896 |
+|   18 |              1722.9671 |
+|   19 |             3196.77908 |
+|   20 |              3228.2914 |
+|   21 |             3262.89519 |
+
+$\vspace{3pt}$
+
+Input file of GAMESS for finding TS structure
+#+BEGIN_SRC sh
+ $CONTRL SCFTYP=RHF RUNTYP=SADPOINT 
+       ICHARG=0 MULT=1 COORD=ZMTMPC $END
+ $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 $END
+ $STATPT HESS=CALC NSTEP=100 $END
+ $DATA
+C2H4O
+C1 1
+C 0.0000000 0 0.0000000 0 0.0000000 0 0 0 0
+C 1.5399999 1 0.0000000 0 0.0000000 0 1 0 0
+O 1.2750004 1 120.00001 1 0.0000000 0 2 1 0
+H 1.0899999 1 117.38978 1 -161.69236 1 2 1 3
+H 1.0899999 1 109.47118 1 -109.99999 1 1 2 3
+H 1.5049143 1 69.873796 1 -11.355956 1 1 2 3
+H 1.0900000 1 109.47123 1 129.99998 1 1 2 3
+ $END
+#+END_SRC
+
+
+Then, perform a single-point calculation to confirm the vibrational modes of converged structure
+
+$\vspace{3pt}$
+
+Input file of GAMESS for finding TS structure
+#+BEGIN_SRC sh
+ $CONTRL SCFTYP=RHF RUNTYP=HESSIAN 
+       ICHARG=0 MULT=1 COORD=ZMTMPC $END
+ $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 $END
+ $DATA
+C2H4O
+C1 1
+C 0.0000000 0 0.0000000 0 0.0000000 0 0 0 0
+C 1.4205123 1 0.0000000 0 0.0000000 0 1 0 0
+O 1.2517072 1 109.17749 1 0.0000000 0 2 1 0
+H 1.0807165 1 131.54793 1 -177.24197 1 2 1 3
+H 1.0846693 1 110.03343 1 -73.713743 1 1 2 3
+H 1.5184653 1 65.616181 1 7.9326391 1 1 2 3
+H 1.0785697 1 120.71715 1 152.43909 1 1 2 3
+ $END
+#+END_SRC
+
+$\vspace{3pt}$
+
+| Mode | Frequency (cm$^{-1}$)  |
+|------+------------------------|
+|    1 |             2573.824 I |
+|    2 |                  4.724 |
+|    3 |                  3.454 |
+|    4 |                  3.069 |
+|    5 |                  0.034 |
+|    6 |                  0.347 |
+|    7 |                  0.461 |
+|    8 |                541.747 |
+|    9 |                 719.07 |
+|   10 |                896.329 |
+|   11 |               1078.011 |
+|   12 |               1161.812 |
+|   13 |               1270.518 |
+|   14 |                1312.98 |
+|   15 |               1432.017 |
+|   16 |               1613.097 |
+|   17 |               1729.381 |
+|   18 |               2088.627 |
+|   19 |                3254.42 |
+|   20 |               3339.587 |
+|   21 |               3357.344 |
+
+$\vspace{3pt}$
+
+The key internal coordinates
+|                   | Acetaldehyde | Transition State | Vinyl alcohol |
+|-------------------+--------------+------------------+---------------|
+| $H_{1}-C$ ($\AA$) |              |          1.51846 |               |
+| $C-C$ ($\AA$)     |              |          1.42051 |               |
+| $C-O$ ($\AA$)     |              |          1.25171 |               |
+| $O-H_{1}$ ($\AA$) |              |          1.23416 |               |
+
+
+*** b) 
+The magnitude of the imaginary vibrational mode at the transition state is 2573.824.
+
+
+*** c)
+Input file of GAMESS for single-point MP2/6-31G(d) calculations on the transition state
+
+#+BEGIN_SRC sh
+ $CONTRL SCFTYP=RHF MPLEVL=2 RUNTYP=ENERGY 
+       ICHARG=0 MULT=1 COORD=ZMTMPC $END
+ $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 $END
+ $DATA
+C2H4O
+C1 1
+C 0.0000000 0 0.0000000 0 0.0000000 0 0 0 0
+C 1.4205115 1 0.0000000 0 0.0000000 0 1 0 0
+O 1.2517074 1 109.17751 1 0.0000000 0 2 1 0
+H 1.0807169 1 131.54793 1 -177.24200 1 2 1 3
+H 1.0846694 1 110.03348 1 -73.713741 1 1 2 3
+H 1.5184649 1 65.616187 1 7.9326351 1 1 2 3
+H 1.0785700 1 120.71714 1 152.43909 1 1 2 3
+ $END
+#+END_SRC
+
+$\vspace{3pt}$
+
+|              | Product - reactant (kJ/mol) | TS - reactant (kJ/mol)                 |
+|--------------+-----------------------------+----------------------------------------|
+| HF/6-31G(d)  |                             | (-397204) - (-397582) = 377.3846       |
+| MP2/6-31G(d) |                             | (-402285) - (-402606) = 321.1754       |
+| ZPE          |                             | (142.325482) - (157.354624) = -15.0291 |
+| MP2 + ZPE    |                             | 306.1463                               |
+
+
+*** d) 
+Thermochemistry at T = 298.15 K
+
+Using ideal gas, rigid rotor, harmonic normal mode approximations.\\
+
+
+from the vibrational calculation of TS
+#+BEGIN_SRC sh
+              E         H         G         CV        CP        S
+           KJ/MOL    KJ/MOL    KJ/MOL   J/MOL-K   J/MOL-K   J/MOL-K
+ ELEC.      0.000     0.000     0.000     0.000     0.000     0.000
+ TRANS.     3.718     6.197   -40.298    12.472    20.786   155.948
+ ROT.       3.718     3.718   -23.019    12.472    12.472    89.678
+ VIB.     143.472   143.472   141.989    14.551    14.551     4.975
+ TOTAL    150.909   153.388    78.671    39.495    47.809   250.601
+#+END_SRC
+
+$\vspace{3pt}$
+from the vibrational calculation of reactant
+#+BEGIN_SRC sh
+              E         H         G         CV        CP        S
+           KJ/MOL    KJ/MOL    KJ/MOL   J/MOL-K   J/MOL-K   J/MOL-K
+ ELEC.      0.000     0.000     0.000     0.000     0.000     0.000
+ TRANS.     3.718     6.197   -40.298    12.472    20.786   155.948
+ ROT.       3.718     3.718   -23.218    12.472    12.472    90.347
+ VIB.     159.926   159.926   155.471    19.320    19.320    14.943
+ TOTAL    167.363   169.842    91.954    44.263    52.577   261.237
+#+END_SRC
+
+$\vspace{3pt}$
+
+Thus, we can compute $\Delta G^{\ddagger}$ 
+
+| Compound      | (MP2 + ZPE) + G$_{corr}$ (kJ/mol)         |
+|---------------+-------------------------------------------|
+| TS - reactant | (306.1463) + (78.671 - 91.954) = 292.8633 |
+
+$\vspace{3pt}$
+
+$$ k(T) = \frac{k_{B} T}{h} e^{-\Delta G(T)^{\ddagger} / k_{B}T}  $$
+
+$$ k(298 K) = \frac{(1.380662 \times 10^{-23})(298)}{6.626176 \times 10^{-34}} e^{\frac{-292.8633 \times 1000} {(8.314472) \times (298)}} = 2.88298 \times 10^{-39} s^{-1} $$
+
+
+
+* Bronsted-Evans-Polanyi relations
+
+Your colleague wants to know if replacing one of the methyl H’s with an F will speed-up or slow down the isomerization. You know from experience that it is much easier to calculate relative rates than absolute ones.
+#+ATTR_LATEX: :options [(a)]
+a. Perform additional calculations to determine whether the reaction is more or less exothermic with the F substituent.
+
+b. Perform additional calculations to determine whether the reaction barrier is higher or lower with the F substituent.
+
+c. Do your answers to (a) and (b) conform to expectations from the BEP relationship?
+
+
+** Solution
+
+*** a)
+
+Using the same method as we used in the first three questions, we optimized the geometry of the reactant, the product and the transition state at the HF/6-31G(d) level, then calculated the single-point energies at the MP2/6-31G(d) level. Zero point energies were obtained from vibrational frequency calculations using the optimized geometries. All calculations were done using Gamess in WebMO. (1 Hartree = 2625.50 kJ/mol)
+
+|-----------------+----------+---------+---------+---------------+--------------------|
+| Energy (kJ/mol) | Reactant | Product |      TS | TS - Reactant | Product - Reactant |
+|-----------------+----------+---------+---------+---------------+--------------------|
+| HF/6-31G(d)     |  -660991 | -660925 | -660599 |        391.20 |              63.64 |
+| MP2/6-31G(d)    |  -662548 | -662492 | -662222 |        325.56 |              55.14 |
+| ZPE             |   139.28 |  122.83 |  141.21 |          1.93 |             -16.45 |
+| MP2 + ZPE       |  -662408 | -662370 | -662081 |        327.49 |              38.69 |
+|                 |          |         |         |               |                    |
+|-----------------+----------+---------+---------+---------------+--------------------|
+Product - Reactant = 38.69 kJ/mol for F substituent.
+Compared with the original reaction, the reaction with the F substituent is less exothermic.
+
+*** b)
+
+TS - Reactant = 327.49 kJ/mol for F substituent.
+Compared with the original reaction, the reaction barrier with the F substituent is higher. 
+
+*** c)
+
+BEP relationship: the difference in activation energy between two reactions of the same family is proportional to the difference of their enthalpy of reaction.
+Our answers to (a) and (b) conform to expectations from the BEP relationship.
